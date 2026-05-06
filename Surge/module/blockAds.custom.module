@@ -4192,4 +4192,4 @@ NetEaseCloudMusic_foll = type=http-response, pattern=^https?:\/\/(ipv4|interface
 
 
 [MITM]
-hostname = %APPEND% api.live.bilibili.com, api.zhihu.com, app-api.smzdm.com, app.bilibili.com, appcloud2.zhihu.com, article-api.smzdm.com, edith.xiaohongshu.com, grpc.biliapi.net, haojia-api.smzdm.com, haojia.m.smzdm.com, homepage-api.smzdm.com, interface*.music.163.com, ipv4.music.163.com, m-cloud.zhihu.com, manga.bilibili.com, newclient.map.baidu.com, page-info.zhihu.com, qianbao.smzdm.com, rec.xiaohongshu.com, s-api.smzdm.com, user-api.smzdm.com, www.xiaohongshu.com, www.zhihu.com
+hostname = %APPEND% api.live.bilibili.com, api.zhihu.com, app-api.smzdm.com, app.bilibili.com, appcloud2.zhihu.com, article-api.smzdm.com, edith.xiaohongshu.com, grpc.biliapi.net, apio.zhengqi100.com, haojia-api.smzdm.com, haojia.m.smzdm.com, homepage-api.smzdm.com, interface*.music.163.com, ipv4.music.163.com, m-cloud.zhihu.com, manga.bilibili.com, newclient.map.baidu.com, page-info.zhihu.com, qianbao.smzdm.com, rec.xiaohongshu.com, s-api.smzdm.com, user-api.smzdm.com, www.xiaohongshu.com, www.zhihu.com, tiebac.baidu.com
