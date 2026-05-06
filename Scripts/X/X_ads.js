@@ -1,10 +1,10 @@
 /**
  * @author fmz200
- * @function 美柚app去广告&净化
- * @date 2026-04-08 14:20:00
+ * @function X(Twitter)网页版去广告
+ * @date 2026-04-26 09:30:00
  */
 
-const $ = new Env("美柚app去广告&净化");
+const $ = new Env("X(Twitter)网页版去广告");
 let req_url = $request.url;
 let rsp_body = "{}";
 // 检查 $response 是否已定义
@@ -17,26 +17,61 @@ let mod_rsp = rsp_body;
 try {
   mod_rsp = JSON.parse(rsp_body);
 
-  if (req_url.includes("/api/configs?")) {
-    // HTTP dns
-    delete mod_rsp.data.apptech.httpdnsback;
+  // "为你推荐"页面
+  if (req_url.includes("/HomeTimeline")) {
+    if (mod_rsp.data && mod_rsp.data.home && mod_rsp.data.home.home_timeline_urt) {
+      let instructions = mod_rsp.data.home.home_timeline_urt.instructions;
 
-    delete mod_rsp.data.meetyou_app_setting.root_tab.moneytab_title;
-    delete mod_rsp.data.meetyou_app_setting.root_tab.moneytab_icon;
-    delete mod_rsp.data.meetyou_app_setting.root_tab.moneytab_icon_highlighted;
+      instructions.forEach((instruction) => {
+        if (instruction.entries) {
+          // 过滤掉所有 Promoted (广告) 条目
+          instruction.entries = instruction.entries.filter((entry) => {
+            const isPromoted = entry.entryId.includes("promoted-tweet") || entry.content?.itemContent?.promotedMetadata;
+            if (isPromoted) {
+              console.log(`❌HomeTimeline去除广告条目：${entry.entryId}`);
+            }
+            return !isPromoted;
+          });
+        }
+      });
+    }
   }
 
-  if (req_url.includes("/api/configs/batch?")) {
-    // HTTP dns
-    delete mod_rsp.data.apptech.httpdnsback;
-    // 启动页图片
-    delete mod_rsp.data.meetyou_app_setting.launch_page;
-    // 打开通知，及时接收重要消息
-    delete mod_rsp.data.meetyou_app_setting.common;
+  // "评论区"广告
+  if (req_url.includes("/TweetDetail")) {
+    let instructions = mod_rsp.data?.threaded_conversation_with_injections_v2?.instructions;
 
-    delete mod_rsp.data.meetyou_app_setting.root_tab.moneytab_title;
-    delete mod_rsp.data.meetyou_app_setting.root_tab.moneytab_icon;
-    delete mod_rsp.data.meetyou_app_setting.root_tab.moneytab_icon_highlighted;
+    if (instructions) {
+      instructions.forEach((instruction) => {
+        if (instruction.entries) {
+          instruction.entries = instruction.entries.filter((entry) => {
+            // 1. 检查 Entry 层级是否为广告
+            const isDirectAd = entry.entryId?.includes("promoted") || entry.content?.itemContent?.promotedMetadata;
+            if (isDirectAd) {
+              console.log(`❌TweetDetail去除广告条目1：${entry.entryId}`);
+              return false;
+            }
+
+            // 2. 检查内部嵌套的 Items (常见于详情页推荐或回复区广告)
+            if (entry.content?.items) {
+              entry.content.items = entry.content.items.filter((item) => {
+                const itemContent = item.item?.itemContent || item.itemContent;
+                const isItemAd = item.entryId?.includes("promoted") || itemContent?.promotedMetadata;
+                if (isItemAd) {
+                  console.log(`❌TweetDetail去除广告条目2：${item.entryId}`);
+                }
+                return !isItemAd;
+              });
+
+              // 如果模块内的广告被删光了，则删除整个模块条目
+              if (entry.content.items.length === 0) return false;
+            }
+
+            return true;
+          });
+        }
+      });
+    }
   }
 } catch (error) {
   console.log('脚本运行出现错误，部分广告未去除⚠️错误信息：' + error.message);
